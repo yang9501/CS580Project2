@@ -68,6 +68,7 @@ def winning_move(board, piece):
 		for r in range(ROW_COUNT - 1):
 			if board[r][c] == piece and board[r][c+1] == piece and board[r+1][c] == piece and board[r+1][c+1] == piece:
 				return True
+				
 def evaluate_window(window, piece):
 	score = 0
 	opp_piece = PLAYER_PIECE
