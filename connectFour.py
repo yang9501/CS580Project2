@@ -3,11 +3,33 @@ import random
 import pygame
 import sys
 import math
+import time
 
-BLUE = (0,0,255)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 GRAY = (152,153,155)
+YELLOW = (0,0,0)
+
+yellowDict = {
+	"tan": (230,219,172),
+	"beige": (238,220,154),
+	"macaroon": (249,224,118),
+	"hazelwood": (201,187,142),
+	"granola": (214,184,90),
+	"oat": (223,201,138),
+	"eggnog": (250,226,156),
+	"fawn": (200,169,81),
+	"sugarcookie": (243,234,175),
+	"sand": (216,184,99),
+	"sepia": (227,183,120),
+	"latte": (231,194,125),
+	"oyster": (220,215,160),
+	"biscotti": (227,197,101),
+	"parmesean": (253,233,146),
+	"hazelnut": (189,165,93)
+}
+
+
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -20,6 +42,7 @@ PLAYER_PIECE = 1
 AI_PIECE = 2
 
 WINDOW_LENGTH = 4
+
 
 def create_board():
 	board = np.zeros((ROW_COUNT,COLUMN_COUNT))
@@ -191,7 +214,7 @@ def pick_best_move(board, piece):
 def draw_board(board):
 	for c in range(COLUMN_COUNT):
 		for r in range(ROW_COUNT):
-			pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
+			pygame.draw.rect(screen, YELLOW, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
 			pygame.draw.circle(screen, GRAY, (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
 	
 	for c in range(COLUMN_COUNT):
@@ -202,6 +225,36 @@ def draw_board(board):
 				pygame.draw.circle(screen, WHITE, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
 	pygame.display.update()
 
+
+######## Board color selection
+indexToColorDict = {}
+i = 1
+for color in yellowDict.keys():
+	indexToColorDict[i] = color
+	print(str(i) + ". " + color)
+	i=i+1
+
+selection = int(input("Select a board color from the options above (input a number): "))
+########
+boardRGBValue = yellowDict[indexToColorDict[selection]]
+YELLOW = boardRGBValue
+
+playerName = input("Enter your name: ")
+agentName = "James Bond"
+firstTurn = 5
+while(1): 
+	firstTurn = int(input("Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
+	if(firstTurn == 0 or firstTurn == 1):
+		break
+	print("Please enter either '0' or '1'")
+
+
+while(1): 
+	minimaxDepth = int(input("How deep is the search for Minimax? [1-5]: "))
+	if(minimaxDepth >= 1 and minimaxDepth <= 5):
+		break
+	print("Please enter a value between 1 and 5, inclusive")
+
 board = create_board()
 print_board(board)
 game_over = False
@@ -209,6 +262,7 @@ game_over = False
 pygame.init()
 
 SQUARESIZE = 100
+totalMovesCounter = 0
 
 width = COLUMN_COUNT * SQUARESIZE
 height = (ROW_COUNT+1) * SQUARESIZE
@@ -223,8 +277,9 @@ pygame.display.update()
 
 myfont = pygame.font.SysFont("monospace", 75)
 
-turn = random.randint(PLAYER, AI)
+turn = firstTurn
 
+gameStartTime = time.time()
 while not game_over:
 
 	for event in pygame.event.get():
@@ -250,9 +305,12 @@ while not game_over:
 				if is_valid_location(board, col):
 					row = get_next_open_row(board, col)
 					drop_piece(board, row, col, PLAYER_PIECE)
+					totalMovesCounter += 1
 
 					if winning_move(board, PLAYER_PIECE):
-						label = myfont.render("Player 1 wins!!", 1, BLACK)
+						print("Total Moves: " + str(totalMovesCounter))
+						print("Time elapsed: " + str(time.time() - gameStartTime))
+						label = myfont.render(playerName + " wins!!", 1, BLACK)
 						screen.blit(label, (40,10))
 						game_over = True
 
@@ -268,15 +326,18 @@ while not game_over:
 
 		#col = random.randint(0, COLUMN_COUNT-1)
 		#col = pick_best_move(board, AI_PIECE)
-		col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+		col, minimax_score = minimax(board, minimaxDepth, -math.inf, math.inf, True)
 
 		if is_valid_location(board, col):
 			#pygame.time.wait(500)
 			row = get_next_open_row(board, col)
 			drop_piece(board, row, col, AI_PIECE)
+			totalMovesCounter += 1
 
 			if winning_move(board, AI_PIECE):
-				label = myfont.render("Player 2 wins!!", 1, WHITE)
+				print("Total Moves: " + str(totalMovesCounter))
+				print("Time elapsed: " + str(time.time() - gameStartTime))
+				label = myfont.render(agentName + " wins!!", 1, WHITE)
 				screen.blit(label, (40,10))
 				game_over = True
 
