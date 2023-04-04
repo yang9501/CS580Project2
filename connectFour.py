@@ -4,6 +4,8 @@ import pygame
 import sys
 import math
 import time
+import tkinter as tk
+from tkinter import simpledialog, messagebox
 
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -68,7 +70,7 @@ def winning_move(board, piece):
 		for r in range(ROW_COUNT - 1):
 			if board[r][c] == piece and board[r][c+1] == piece and board[r+1][c] == piece and board[r+1][c+1] == piece:
 				return True
-				
+
 def evaluate_window(window, piece):
 	score = 0
 	opp_piece = PLAYER_PIECE
@@ -208,34 +210,43 @@ def draw_board(board):
 	pygame.display.update()
 
 
-######## Board color selection
+################################ User configuration of Board
+ROOT = tk.Tk()
+
+ROOT.withdraw()
+
 indexToColorDict = {}
 i = 1
+colorString = ""
 for color in yellowDict.keys():
 	indexToColorDict[i] = color
-	print(str(i) + ". " + color)
+	colorString = colorString + str(i) + ". " + color + "\n"
 	i=i+1
 
-selection = int(input("Select a board color from the options above (input a number): "))
-########
+while(1): 
+	selection = int(simpledialog.askstring(title="Get Depth", prompt= colorString + "Select a board color from the options above (input a number): "))
+	if(selection >= 1 and selection <= 16):
+		break
+	messagebox.showerror("Warning","Please enter a value between 1 and 16, inclusive")
+
 boardRGBValue = yellowDict[indexToColorDict[selection]]
 YELLOW = boardRGBValue
 
-playerName = input("Enter your name: ")
+playerName = simpledialog.askstring(title="Get Name", prompt="Enter your name: ")
 agentName = "James Bond"
 firstTurn = 5
 while(1): 
-	firstTurn = int(input("Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
+	firstTurn = int(simpledialog.askstring(title="Get First Turn", prompt="Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
 	if(firstTurn == 0 or firstTurn == 1):
 		break
-	print("Please enter either '0' or '1'")
-
+	messagebox.showerror("Warning","Please enter either '0' or '1'")
 
 while(1): 
-	minimaxDepth = int(input("How deep is the search for Minimax? [1-5]: "))
+	minimaxDepth = int(simpledialog.askstring(title="Get Depth", prompt="How deep is the search for Minimax? [1-5]: "))
 	if(minimaxDepth >= 1 and minimaxDepth <= 5):
 		break
-	print("Please enter a value between 1 and 5, inclusive")
+	messagebox.showerror("Warning","Please enter a value between 1 and 5, inclusive")
+####################################
 
 board = create_board()
 print_board(board)
