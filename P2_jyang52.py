@@ -6,6 +6,7 @@ import math
 import time
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+from visualiser.visualiser import Visualiser as vs
 
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -30,8 +31,6 @@ yellowDict = {
 	"parmesean": (253,233,146),
 	"hazelnut": (189,165,93)
 }
-
-
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -72,7 +71,9 @@ def winning_move(board, piece):
 				return True
 
 def evaluate_window(window, piece):
+	#Need to compare the opponent's state with
 	score = 0
+	#print(window)
 	opp_piece = PLAYER_PIECE
 	if piece == PLAYER_PIECE:
 		opp_piece = AI_PIECE
@@ -92,36 +93,15 @@ def evaluate_window(window, piece):
 def score_position(board, piece):
 	score = 0
 
-	## Score center column
 	center_array = [int(i) for i in list(board[:, COLUMN_COUNT//2])]
 	center_count = center_array.count(piece)
 	score += center_count * 3
 
-	## Score Horizontal
-	for r in range(ROW_COUNT):
-		row_array = [int(i) for i in list(board[r,:])]
-		for c in range(COLUMN_COUNT-3):
-			window = row_array[c:c+WINDOW_LENGTH]
+	for c in range(COLUMN_COUNT - 3):
+		for r in range(ROW_COUNT - 3):
+			window = [board[r + i][c + i] for i in range(WINDOW_LENGTH)]
 			score += evaluate_window(window, piece)
-
-	## Score Vertical
-	for c in range(COLUMN_COUNT):
-		col_array = [int(i) for i in list(board[:,c])]
-		for r in range(ROW_COUNT-3):
-			window = col_array[r:r+WINDOW_LENGTH]
-			score += evaluate_window(window, piece)
-
-	## Score posiive sloped diagonal
-	for r in range(ROW_COUNT-3):
-		for c in range(COLUMN_COUNT-3):
-			window = [board[r+i][c+i] for i in range(WINDOW_LENGTH)]
-			score += evaluate_window(window, piece)
-
-	for r in range(ROW_COUNT-3):
-		for c in range(COLUMN_COUNT-3):
-			window = [board[r+3-i][c+i] for i in range(WINDOW_LENGTH)]
-			score += evaluate_window(window, piece)
-
+	
 	return score
 
 def is_terminal_node(board):
@@ -130,12 +110,12 @@ def is_terminal_node(board):
 def minimax(board, depth, alpha, beta, maximizingPlayer):
 	valid_locations = get_valid_locations(board)
 	is_terminal = is_terminal_node(board)
-	if depth == 0 or is_terminal:
+	if depth == 0 or is_terminal:	
 		if is_terminal:
 			if winning_move(board, AI_PIECE):
-				return (None, 100000000000000)
+				return (None, 1000000000000000000000)
 			elif winning_move(board, PLAYER_PIECE):
-				return (None, -10000000000000)
+				return (None, -100000000000000000000000)
 			else: # Game is over, no more valid moves
 				return (None, 0)
 		else: # Depth is zero
@@ -143,11 +123,13 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 	if maximizingPlayer:
 		value = -math.inf
 		column = random.choice(valid_locations)
+		scoreArr = []
 		for col in valid_locations:
 			row = get_next_open_row(board, col)
 			b_copy = board.copy()
 			drop_piece(b_copy, row, col, AI_PIECE)
 			new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
+			scoreArr.append(new_score)
 			if new_score > value:
 				value = new_score
 				column = col
@@ -159,11 +141,13 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 	else: # Minimizing player
 		value = math.inf
 		column = random.choice(valid_locations)
+		scoreArr = []
 		for col in valid_locations:
 			row = get_next_open_row(board, col)
 			b_copy = board.copy()
 			drop_piece(b_copy, row, col, PLAYER_PIECE)
 			new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
+			scoreArr.append(new_score)
 			if new_score < value:
 				value = new_score
 				column = col
@@ -223,23 +207,26 @@ for color in yellowDict.keys():
 	colorString = colorString + str(i) + ". " + color + "\n"
 	i=i+1
 
-while(1): 
-	selection = int(simpledialog.askstring(title="Get Depth", prompt= colorString + "Select a board color from the options above (input a number): "))
-	if(selection >= 1 and selection <= 16):
-		break
-	messagebox.showerror("Warning","Please enter a value between 1 and 16, inclusive")
+selection = 1
+
+#while(1): 
+#	selection = int(simpledialog.askstring(title="Get Depth", prompt= colorString + "Select a board color from the options above (input a number): "))
+#	if(selection >= 1 and selection <= 16):
+#		break
+#	messagebox.showerror("Warning","Please enter a value between 1 and 16, inclusive")
 
 boardRGBValue = yellowDict[indexToColorDict[selection]]
 YELLOW = boardRGBValue
 
-playerName = simpledialog.askstring(title="Get Name", prompt="Enter your name: ")
+#playerName = simpledialog.askstring(title="Get Name", prompt="Enter your name: ")
+playerName = "Player 1"
 agentName = "James Bond"
-firstTurn = 5
-while(1): 
-	firstTurn = int(simpledialog.askstring(title="Get First Turn", prompt="Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
-	if(firstTurn == 0 or firstTurn == 1):
-		break
-	messagebox.showerror("Warning","Please enter either '0' or '1'")
+firstTurn = 0
+#while(1): 
+#	firstTurn = int(simpledialog.askstring(title="Get First Turn", prompt="Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
+#	if(firstTurn == 0 or firstTurn == 1):
+#		break
+#	messagebox.showerror("Warning","Please enter either '0' or '1'")
 
 while(1): 
 	minimaxDepth = int(simpledialog.askstring(title="Get Depth", prompt="How deep is the search for Minimax? [1-5]: "))
@@ -274,7 +261,7 @@ turn = firstTurn
 
 gameStartTime = time.time()
 while not game_over:
-
+	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
@@ -301,22 +288,18 @@ while not game_over:
 					totalMovesCounter += 1
 
 					if winning_move(board, PLAYER_PIECE):
-						print("Total Moves: " + str(totalMovesCounter))
-						print("Time elapsed: " + str(time.time() - gameStartTime))
 						label = myfont.render(playerName + " wins!!", 1, BLACK)
 						screen.blit(label, (40,10))
 						game_over = True
 
 					turn += 1
 					turn = turn % 2
-
 					print_board(board)
 					draw_board(board)
 
 
 	# # Ask for Player 2 Input
-	if turn == AI and not game_over:				
-
+	if turn == AI and not game_over:
 		#col = random.randint(0, COLUMN_COUNT-1)
 		#col = pick_best_move(board, AI_PIECE)
 		col, minimax_score = minimax(board, minimaxDepth, -math.inf, math.inf, True)
@@ -328,10 +311,8 @@ while not game_over:
 			totalMovesCounter += 1
 
 			if winning_move(board, AI_PIECE):
-				print("Total Moves: " + str(totalMovesCounter))
-				print("Time elapsed: " + str(time.time() - gameStartTime))
 				label = myfont.render(agentName + " wins!!", 1, WHITE)
-				screen.blit(label, (40,10))
+				screen.blit(label, (40,10))				
 				game_over = True
 
 			print_board(board)
@@ -339,6 +320,6 @@ while not game_over:
 
 			turn += 1
 			turn = turn % 2
-
 	if game_over:
+		messagebox.showerror("Result","Total Moves: " + str(totalMovesCounter) + ", Time Elapsed: " + str("{:.2f}".format(time.time() - gameStartTime)) + " seconds")
 		pygame.time.wait(3000)
