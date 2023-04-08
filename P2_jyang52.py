@@ -209,24 +209,25 @@ for color in yellowDict.keys():
 
 selection = 1
 
-#while(1): 
-#	selection = int(simpledialog.askstring(title="Get Depth", prompt= colorString + "Select a board color from the options above (input a number): "))
-#	if(selection >= 1 and selection <= 16):
-#		break
-#	messagebox.showerror("Warning","Please enter a value between 1 and 16, inclusive")
+while(1): 
+	selection = int(simpledialog.askstring(title="Get Depth", prompt= colorString + "Select a board color from the options above (input a number): "))
+	if(selection >= 1 and selection <= 16):
+		break
+	messagebox.showerror("Warning","Please enter a value between 1 and 16, inclusive")
 
 boardRGBValue = yellowDict[indexToColorDict[selection]]
 YELLOW = boardRGBValue
 
-#playerName = simpledialog.askstring(title="Get Name", prompt="Enter your name: ")
 playerName = "Player 1"
+playerName = simpledialog.askstring(title="Get Name", prompt="Enter your name: ")
+
 agentName = "James Bond"
 firstTurn = 0
-#while(1): 
-#	firstTurn = int(simpledialog.askstring(title="Get First Turn", prompt="Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
-#	if(firstTurn == 0 or firstTurn == 1):
-#		break
-#	messagebox.showerror("Warning","Please enter either '0' or '1'")
+while(1): 
+	firstTurn = int(simpledialog.askstring(title="Get First Turn", prompt="Who will go first, (0) " + playerName + " or your opponent, (1) " + agentName + "?  Enter either (0) or (1) corresponding with player name."))
+	if(firstTurn == 0 or firstTurn == 1):
+		break
+	messagebox.showerror("Warning","Please enter either '0' or '1'")
 
 while(1): 
 	minimaxDepth = int(simpledialog.askstring(title="Get Depth", prompt="How deep is the search for Minimax? [1-5]: "))
